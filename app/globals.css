@@ -2,7 +2,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1f2937;
 }
 
 @theme inline {
@@ -23,4 +23,78 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.nav-shell {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(95, 26, 18, 0.72);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 60px rgba(127, 29, 29, 0.35);
+  overflow: hidden;
+}
+
+.nav-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(120deg, #ffffff, #fb923c, #f97316, #ef4444, #ffffff);
+  background-size: 220% 220%;
+  animation: navGradientDrift 7s ease infinite;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.footer-shell {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(62, 20, 16, 0.93), rgba(95, 26, 18, 0.9));
+  backdrop-filter: blur(14px);
+  box-shadow: 0 28px 60px rgba(69, 10, 10, 0.45);
+  overflow: hidden;
+}
+
+.footer-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(120deg, #fff7ed, #fdba74, #f97316, #ef4444, #fff7ed);
+  background-size: 220% 220%;
+  animation: navGradientDrift 7s ease infinite;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.copyright-glow {
+  color: #ffe4d6;
+  text-shadow: 0 0 12px rgba(251, 146, 60, 0.52), 0 0 24px rgba(239, 68, 68, 0.32);
+  animation: copyrightPulse 2.8s ease-in-out infinite;
+}
+
+@keyframes navGradientDrift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes copyrightPulse {
+  0%,
+  100% {
+    opacity: 0.82;
+  }
+  50% {
+    opacity: 1;
+  }
 }
