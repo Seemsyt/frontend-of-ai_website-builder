@@ -5,6 +5,7 @@ import Script from "next/script";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { API_BASE } from "../lib/config";
 
 gsap.registerPlugin(useGSAP);
 
@@ -36,7 +37,6 @@ declare global {
   }
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ??
   "912635235048-7jj1ca4969vj1u2i8eoh18boatms8hke.apps.googleusercontent.com";

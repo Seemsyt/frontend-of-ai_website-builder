@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { usePathname } from "next/navigation";
 
 const fallingLights = [
   { left: "8%", size: 8, delay: 0, duration: 7.5, opacity: 0.6, blur: "blur-[1px]" },
@@ -15,6 +16,9 @@ const fallingLights = [
 ];
 
 const Spotlight = () => {
+  const pathname = usePathname();
+  if (pathname === "/generate") return null;
+
   return (
     <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
       <motion.div

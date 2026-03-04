@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-orange-50 to-red-100">
+        <main className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-white via-orange-50 to-red-100">
           <Spotlight />
           <Navbar />
           <PageTransition>{children}</PageTransition>

@@ -2,21 +2,27 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
+import { authFetch, clearAuthSession } from "../lib/auth";
+import { API_BASE } from "../lib/config";
 
 type AuthUser = {
   first_name?: string;
   last_name?: string;
   username?: string;
   avatar_url?: string;
+  credits?: number;
 };
 
 export default function Navbar() {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
-
+  const avatarMenuRef = useRef<HTMLDivElement | null>(null);
+  
   useEffect(() => {
     const syncAuthUser = async () => {
       try {
@@ -26,9 +32,7 @@ export default function Navbar() {
         setAuthUser(localUser);
 
         if (!accessToken) return;
-        const response = await fetch(`${API_BASE}/api/v1/me/`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        const response = await authFetch(`${API_BASE}/api/v1/me/`);
 
         if (!response.ok) return;
         const remoteUser = (await response.json()) as AuthUser;
@@ -47,7 +51,19 @@ export default function Navbar() {
       window.removeEventListener("storage", syncAuthUser);
       window.removeEventListener("auth-changed", syncAuthUser);
     };
-  }, [API_BASE]);
+  }, []);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (!avatarMenuRef.current) return;
+      if (!avatarMenuRef.current.contains(event.target as Node)) {
+        setIsAvatarMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("mousedown", handleOutsideClick);
+    return () => window.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
 
   const avatarLabel = useMemo(() => {
     const initials = `${authUser?.first_name?.[0] || ""}${authUser?.last_name?.[0] || ""}`.trim();
@@ -59,15 +75,13 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     const refreshToken = localStorage.getItem("refresh_token");
-    const accessToken = localStorage.getItem("access_token");
 
     try {
-      if (refreshToken && accessToken) {
-        await fetch(`${API_BASE}/api/v1/logout/`, {
+      if (refreshToken) {
+        await authFetch(`${API_BASE}/api/v1/logout/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({ refresh: refreshToken }),
         });
@@ -75,13 +89,16 @@ export default function Navbar() {
     } catch {
       // Logout should still continue on client cleanup.
     } finally {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      localStorage.removeItem("auth_user");
+      clearAuthSession();
       setAuthUser(null);
       setIsMenuOpen(false);
-      window.dispatchEvent(new Event("auth-changed"));
+      setIsAvatarMenuOpen(false);
     }
+  };
+
+  const handleCreateWebsite = () => {
+    if (!authUser) return;
+    router.push("/generate");
   };
 
   return (
@@ -91,65 +108,114 @@ export default function Navbar() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeIn" }}
     >
-      <nav className="nav-shell mx-auto max-w-6xl rounded-2xl px-4 py-3 sm:px-6">
-        <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2">
+      <nav className="nav-shell mx-auto max-w-6xl overflow-visible rounded-2xl px-4 py-3 sm:px-6">
+        <div className="relative z-10 flex items-center justify-between gap-4">
+          <Link href={authUser ? "/generate" : "/"} className="group flex items-center gap-2">
             <span className="inline-block h-2.5 w-2.5 rounded-full bg-orange-300 shadow-[0_0_16px_4px_rgba(251,146,60,0.6)]" />
-            <span className="text-base font-semibold tracking-wide text-white sm:text-lg">
-              AI Website Builder
+            <span className="bg-linear-to-r from-orange-300 via-red-300 to-orange-200 bg-clip-text text-base font-bold tracking-[0.12em] text-transparent uppercase transition group-hover:from-orange-200 group-hover:via-red-200 group-hover:to-orange-100 sm:text-lg">
+              <img src="/Sgen.png" alt="Sgen Web" className="w-[120px]"/>
             </span>
           </Link>
 
           <div className="hidden items-center gap-3 md:flex">
-            <Link
-              href="/pricing"
-              className="rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white/90 transition hover:border-white/35 hover:text-white"
-            >
-              Pricing
-            </Link>
-
             {authUser ? (
               <>
-              <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="rounded-full border border-red-300/60 px-4 py-2 text-sm font-medium text-red-100 transition hover:border-red-200 hover:text-white"
-                >
-                  Logout
-                </button>
-                <span className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white/30 bg-white/10 text-xs font-semibold text-white">
-                  {hasAvatar ? (
-                    <Image
-                      src={authUser.avatar_url as string}
-                      alt="User avatar"
-                      width={40}
-                      height={40}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    avatarLabel
-                  )}
+                <span className="rounded-full border border-white/25 bg-white/10 px-4 py-2 text-sm font-semibold text-white cursor-pointer">
+                  <Link href="/pricing" className="block">
+                    Credits: {authUser.credits ?? 0}
+                  </Link>
                 </span>
-                
+                <button
+                  type="button"
+                  onClick={handleCreateWebsite}
+                  className="rounded-full bg-gradient-to-r from-orange-400 to-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:from-orange-300 hover:to-red-400"
+                >
+                  Create New Website
+                </button>
+                <Link
+                  href="/dashboard"
+                  className="rounded-full border border-white/25 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+                >
+                  Dashboard
+                </Link>
+                <div ref={avatarMenuRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsAvatarMenuOpen((prev) => !prev)}
+                    className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white/30 bg-white/10 text-xs font-semibold text-white"
+                    aria-label="Open account menu"
+                  >
+                    {hasAvatar ? (
+                      <Image
+                        src={authUser.avatar_url as string}
+                        alt="User avatar"
+                        width={40}
+                        height={40}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      avatarLabel
+                    )}
+                  </button>
+
+                  {isAvatarMenuOpen && (
+                    <div className="absolute right-0 z-[120] mt-2 w-40 rounded-xl border border-orange-200/40 bg-red-950/95 p-2 shadow-xl">
+                      <Link
+                        href="/dashboard"
+                        className="block rounded-lg px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                        onClick={() => setIsAvatarMenuOpen(false)}
+                      >
+                        Account
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="mt-1 w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-red-100 transition hover:bg-white/10"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
-              <Link
-                href="/?auth=login"
-                className="rounded-full bg-gradient-to-r from-orange-400 to-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:from-orange-300 hover:to-red-400"
-              >
-                Get Started
-              </Link>
+              <>
+                <Link
+                  href="/pricing"
+                  className="rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white/90 transition hover:border-white/35 hover:text-white"
+                >
+                  Pricing
+                </Link>
+                <Link
+                  href="/?auth=login"
+                  className="rounded-full bg-gradient-to-r from-orange-400 to-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:from-orange-300 hover:to-red-400"
+                >
+                  Get Started
+                </Link>
+              </>
             )}
           </div>
 
-          <button
-            type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white md:hidden"
-            onClick={() => setIsMenuOpen((prev) => !prev)}
-            aria-label="Toggle menu"
-          >
-            <span className="text-lg leading-none">{isMenuOpen ? "\u2715" : "\u2630"}</span>
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            {authUser && (
+              <button
+                type="button"
+                onClick={handleCreateWebsite}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-orange-300/70 bg-gradient-to-r from-orange-400 to-red-500 text-xl font-bold text-white cursor-pointer"
+                aria-label="Create new website"
+              >
+                +
+              </button>
+            )}
+            <button
+              type="button"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white"
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+              aria-label="Toggle menu"
+            >
+              <span className="text-lg leading-none">{isMenuOpen ? "\u2715" : "\u2630"}</span>
+            </button>
+          </div>
         </div>
 
         <AnimatePresence>
@@ -162,29 +228,54 @@ export default function Navbar() {
               className="mt-3 space-y-2 rounded-xl border border-orange-200/20 bg-red-950/75 p-4 md:hidden"
             >
               <div className="grid grid-cols-2 gap-2 pt-2">
-                <Link
-                  href="/pricing"
-                  className="rounded-lg border border-white/20 px-3 py-2 text-center text-sm text-white/90"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Pricing
-                </Link>
                 {authUser ? (
-                  <button
-                    type="button"
-                    className="rounded-lg border border-red-300/60 px-3 py-2 text-center text-sm font-semibold text-red-100"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </button>
+                  <>
+                    <Link
+                      href="/pricing"
+                      className="col-span-2 rounded-lg border border-white/20 px-3 py-2 text-center text-sm font-semibold text-white"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Credits: {authUser.credits ?? 0}
+                    </Link>
+                    <Link
+                      href="/generate"
+                      className="col-span-2 rounded-lg border border-white/20 px-3 py-2 text-center text-sm font-semibold text-white"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Generate
+                    </Link>
+                    <Link
+                      href="/dashboard"
+                      className="col-span-2 rounded-lg border border-white/20 px-3 py-2 text-center text-sm font-semibold text-white"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      type="button"
+                      className="col-span-2 rounded-lg border border-red-300/60 px-3 py-2 text-center text-sm font-semibold text-red-100"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </button>
+                  </>
                 ) : (
-                  <Link
-                    href="/?auth=login"
-                    className="rounded-lg bg-gradient-to-r from-orange-400 to-red-500 px-3 py-2 text-center text-sm font-semibold text-white"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Get Started
-                  </Link>
+                  <>
+                    <Link
+                      href="/pricing"
+                      className="rounded-lg border border-white/20 px-3 py-2 text-center text-sm text-white/90"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Pricing
+                    </Link>
+                    <Link
+                      href="/?auth=login"
+                      className="rounded-lg bg-gradient-to-r from-orange-400 to-red-500 px-3 py-2 text-center text-sm font-semibold text-white"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Get Started
+                    </Link>
+                  </>
                 )}
                 {authUser && (
                   <div className="col-span-2 inline-flex items-center justify-center gap-2 rounded-lg border border-white/20 px-3 py-2 text-center text-sm font-semibold text-white">

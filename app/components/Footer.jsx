@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const quickLinks = [
   { label: "Features", href: "#features" },
@@ -10,6 +11,9 @@ const quickLinks = [
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
+  if (pathname === "/generate") return null;
+
   return (
     <footer className="relative z-20 mt-16 border-t border-red-200/40 bg-gradient-to-b from-transparent via-red-100/20 to-red-200/25">
       <div className="mx-auto w-full max-w-6xl px-6 pb-8 pt-10 sm:px-10">
@@ -37,24 +41,24 @@ export default function Footer() {
                   href="mailto:hello@aiwebsitebuilder.dev"
                   className="transition hover:text-orange-200"
                 >
-                  hello@aiwebsitebuilder.dev
+                  seemsdev.vercel.app
                 </a>
               </li>
               <li>
                 <span className="font-medium text-white">Contact Number:</span>{" "}
                 <a href="tel:+919876543210" className="transition hover:text-orange-200">
-                  +91 98765 43210
+                  +91 xxxxxxxx
                 </a>
               </li>
               <li>
                 <span className="font-medium text-white">Instagram:</span>{" "}
                 <a
-                  href="https://instagram.com/your_instagram_handle"
+                  href="https://www.instagram.com/seem.sdev/"
                   target="_blank"
                   rel="noreferrer"
                   className="transition hover:text-orange-200"
                 >
-                  @your_instagram_handle
+                 Seems dev
                 </a>
               </li>
             </ul>

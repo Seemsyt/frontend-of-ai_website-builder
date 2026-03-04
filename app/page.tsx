@@ -1,10 +1,13 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Lenis from "lenis";
 
-gsap.registerPlugin(useGSAP);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const heroTitleWords = ["Build", "Your", "Dream", "Website", "With"];
 const heroAccentWords = ["Smart", "AI"];
@@ -26,10 +29,51 @@ const proofPoints = ["No Code Needed", "Conversion Ready", "Deploy in Minutes"];
 const previewStack = ["Hero content block", "Pricing table", "Testimonials"];
 
 export default function Home() {
+  const router = useRouter();
   const heroRef = useRef<HTMLElement | null>(null);
+  const isClient = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+  const hasAccessToken = isClient && Boolean(localStorage.getItem("access_token"));
+
+  useEffect(() => {
+    if (hasAccessToken) {
+      router.replace("/generate");
+    }
+  }, [hasAccessToken, router]);
+
+  useEffect(() => {
+    if (hasAccessToken) return;
+
+    const lenis = new Lenis({
+      lerp: 0.08,
+      smoothWheel: true,
+      wheelMultiplier: 0.9,
+      touchMultiplier: 1.1,
+    });
+
+    lenis.on("scroll", ScrollTrigger.update);
+
+    const update = (time: number) => {
+      lenis.raf(time * 1000);
+    };
+
+    gsap.ticker.add(update);
+    gsap.ticker.lagSmoothing(0);
+    ScrollTrigger.refresh();
+
+    return () => {
+      lenis.off("scroll", ScrollTrigger.update);
+      gsap.ticker.remove(update);
+      lenis.destroy();
+    };
+  }, [hasAccessToken]);
 
   useGSAP(
     () => {
+      if (hasAccessToken) return;
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
       tl.fromTo(
@@ -189,8 +233,10 @@ export default function Home() {
         cleanupFns.forEach((cleanup) => cleanup());
       };
     },
-    { scope: heroRef }
+    { scope: heroRef, dependencies: [hasAccessToken] }
   );
+
+  if (hasAccessToken) return null;
 
   return (
     <div ref={heroRef} className="relative z-10">
@@ -286,6 +332,7 @@ export default function Home() {
           ))}
         </div>
       </section>
+
     </div>
   );
 }
