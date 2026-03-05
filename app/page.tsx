@@ -30,7 +30,7 @@ const previewStack = ["Hero content block", "Pricing table", "Testimonials"];
 
 export default function Home() {
   const router = useRouter();
-  const heroRef = useRef<HTMLElement | null>(null);
+  const heroRef = useRef<HTMLDivElement | null>(null);
   const isClient = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -178,7 +178,9 @@ export default function Home() {
             scale: 1,
             duration: 0.28,
             ease: "power2.out",
-            onComplete: () => floatTween.resume(),
+            onComplete: () => {
+  floatTween.resume();
+},
           });
         };
 
@@ -250,7 +252,7 @@ export default function Home() {
             <h1 className="mx-auto mb-6 max-w-4xl text-4xl font-extrabold leading-tight text-gray-900 sm:text-5xl md:text-6xl lg:mx-0 lg:text-7xl">
               {heroTitleWords.map((word) => (
                 <span key={word} className="mr-3 inline-block overflow-hidden align-top">
-                  <span className="hero-word inline-block [transform-origin:50%_100%]">{word}</span>
+                  <span className="hero-word inline-block origin-[50%_100%]">{word}</span>
                 </span>
               ))}
               {heroAccentWords.map((word, index) => (
@@ -260,7 +262,7 @@ export default function Home() {
                     index === 0 ? "mr-3" : ""
                   }`}
                 >
-                  <span className="hero-word inline-block bg-gradient-to-r from-orange-500 via-red-500 to-orange-500 bg-clip-text text-transparent [transform-origin:50%_100%]">
+                  <span className="hero-word inline-block bg-linear-to-r from-orange-500 via-red-500 to-orange-500 bg-clip-text text-transparent origin-[50%_100%]">
                     {word}
                   </span>
                 </span>
@@ -284,9 +286,9 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="hero-preview-shell relative mx-auto w-full max-w-md rounded-3xl border border-white/70 bg-white/60 p-4 shadow-[0_30px_80px_rgba(249,115,22,0.24)] backdrop-blur lg:mx-0 [transform-style:preserve-3d]">
-            <div className="hero-preview-orb pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-orange-300/80 to-red-400/70 blur-2xl" />
-            <div className="rounded-2xl border border-orange-100 bg-gradient-to-br from-white to-orange-50 p-5">
+          <div className="hero-preview-shell relative mx-auto w-full max-w-md rounded-3xl border border-white/70 bg-white/60 p-4 shadow-[0_30px_80px_rgba(249,115,22,0.24)] backdrop-blur lg:mx-0 transform-3d">
+            <div className="hero-preview-orb pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-linear-to-br from-orange-300/80 to-red-400/70 blur-2xl" />
+            <div className="rounded-2xl border border-orange-100 bg-linear-to-br from-white to-orange-50 p-5">
               <div className="mb-4 flex items-center justify-between">
                 <p className="text-sm font-semibold text-gray-900">Landing Builder</p>
                 <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">

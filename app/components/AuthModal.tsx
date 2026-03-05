@@ -228,7 +228,7 @@ export default function AuthModal() {
   if (!isOpen) return null;
 
   return (
-    <div ref={modalRef} className="fixed inset-0 z-[80] flex items-center justify-center px-4">
+    <div ref={modalRef} className="fixed inset-0 z-80 flex items-center justify-center px-4">
       <Script src="https://accounts.google.com/gsi/client" async defer onLoad={onGoogleScriptLoad} />
 
       <button
@@ -269,7 +269,7 @@ export default function AuthModal() {
           />
           <button
             type="submit"
-            className="w-full rounded-xl bg-gradient-to-r from-orange-400 to-red-500 px-4 py-3 text-sm font-semibold text-white transition hover:from-orange-300 hover:to-red-400"
+            className="w-full rounded-xl bg-linear-to-r from-orange-400 to-red-500 px-4 py-3 text-sm font-semibold text-white transition hover:from-orange-300 hover:to-red-400"
           >
             Login (Manual)
           </button>

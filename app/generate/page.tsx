@@ -755,7 +755,8 @@ export default function GeneratePage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handlePreview(msg.code)}
+                          disabled={!msg.code}
+  onClick={() => msg.code && handlePreview(msg.code)}
                           className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-orange-600"
                         >
                           Full Preview

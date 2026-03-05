@@ -114,7 +114,7 @@ export default function PricingPage() {
             duration: 0.25,
             ease: "power2.out",
             boxShadow: "0 18px 42px rgba(249, 115, 22, 0.14)",
-            onComplete: () => floatTween.resume(),
+            onComplete: () => { floatTween.resume(); },
           });
         };
 
@@ -145,7 +145,7 @@ export default function PricingPage() {
           <h1 className="mb-5 text-4xl font-extrabold leading-tight text-gray-900 sm:text-5xl md:text-6xl">
             {["Flexible", "Credits", "For", "Every", "Build"].map((word) => (
               <span key={word} className="mr-3 inline-block overflow-hidden align-top last:mr-0">
-                <span className="pricing-title-word inline-block [transform-origin:50%_100%]">
+                <span className="pricing-title-word inline-block origin-[50%_100%]">
                   {word}
                 </span>
               </span>
@@ -166,7 +166,7 @@ export default function PricingPage() {
               className={`pricing-card relative rounded-3xl border ${plan.border} bg-white/70 p-6 shadow-[0_18px_42px_rgba(249,115,22,0.14)] backdrop-blur`}
             >
               <div
-                className={`absolute inset-x-5 top-0 h-1 rounded-full bg-gradient-to-r ${plan.accent}`}
+                className={`absolute inset-x-5 top-0 h-1 rounded-full bg-linear-to-r ${plan.accent}`}
               />
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-bold text-gray-900">{plan.name}</h2>
@@ -177,7 +177,7 @@ export default function PricingPage() {
               <p className="text-sm text-gray-700">{plan.note}</p>
               <div className="mt-5">
                 <p className="text-4xl font-extrabold text-gray-900">{plan.price}</p>
-                <p className="mt-1 text-sm font-semibold uppercase tracking-[0.1em] text-orange-600">
+                <p className="mt-1 text-sm font-semibold uppercase tracking-widest text-orange-600">
                   {plan.credits} Credits
                 </p>
               </div>
@@ -193,7 +193,7 @@ export default function PricingPage() {
               </ul>
               <Link
                 href="/?auth=login"
-                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-orange-400 to-red-500 px-4 py-3 text-sm font-semibold text-white transition hover:from-orange-300 hover:to-red-400"
+                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-linear-to-r from-orange-400 to-red-500 px-4 py-3 text-sm font-semibold text-white transition hover:from-orange-300 hover:to-red-400"
               >
                 Buy {plan.credits} Credits
               </Link>
@@ -206,7 +206,7 @@ export default function PricingPage() {
         <div className="rounded-3xl border border-orange-200/70 bg-white/60 p-6 shadow-[0_20px_48px_rgba(249,115,22,0.14)] backdrop-blur sm:p-8">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-2xl font-bold text-gray-900">Credit Usage Preview</h3>
-            <span className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-red-700">
+            <span className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-red-700">
               Transparent Billing
             </span>
           </div>
