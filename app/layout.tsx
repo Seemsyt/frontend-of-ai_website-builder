@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <main className="relative min-h-screen overflow-x-hidden bg-linear-to-br from-white via-orange-50 to-red-100">
-          <Spotlight />
+        
           <Navbar />
           <PageTransition>{children}</PageTransition>
           <Footer />

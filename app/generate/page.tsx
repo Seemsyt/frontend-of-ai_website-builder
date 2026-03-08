@@ -554,7 +554,7 @@ export default function GeneratePage() {
           isMobileChatsOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="mb-3 flex items-center justify-between gap-2">
+        <div className="mb-3 flex items-center justify-between gap-2 mt-[80px]">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-orange-700">Chats</p>
           <button
             type="button"
@@ -688,7 +688,7 @@ export default function GeneratePage() {
       )}
       {panelVisibility.center && (
       <section className="flex min-w-0 min-h-0 flex-1 flex-col">
-        <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="hidden mb-3 flex items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-orange-600">
               Website Generator

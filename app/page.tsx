@@ -44,32 +44,6 @@ export default function Home() {
     }
   }, [hasAccessToken, router]);
 
-  useEffect(() => {
-    if (hasAccessToken) return;
-
-    const lenis = new Lenis({
-      lerp: 0.08,
-      smoothWheel: true,
-      wheelMultiplier: 0.9,
-      touchMultiplier: 1.1,
-    });
-
-    lenis.on("scroll", ScrollTrigger.update);
-
-    const update = (time: number) => {
-      lenis.raf(time * 1000);
-    };
-
-    gsap.ticker.add(update);
-    gsap.ticker.lagSmoothing(0);
-    ScrollTrigger.refresh();
-
-    return () => {
-      lenis.off("scroll", ScrollTrigger.update);
-      gsap.ticker.remove(update);
-      lenis.destroy();
-    };
-  }, [hasAccessToken]);
 
   useGSAP(
     () => {
@@ -116,9 +90,7 @@ export default function Home() {
       if (!root) return;
 
       const wordElements = gsap.utils.toArray<HTMLElement>(".hero-word", root);
-      const cardElements = gsap.utils.toArray<HTMLElement>(".highlight-card", root);
-      const previewShell = root.querySelector<HTMLElement>(".hero-preview-shell");
-      const previewOrb = root.querySelector<HTMLElement>(".hero-preview-orb");
+     
 
       const cleanupFns: Array<() => void> = [];
       const floatingTweens: gsap.core.Tween[] = [];
@@ -152,88 +124,7 @@ export default function Home() {
         });
       });
 
-      cardElements.forEach((card, index) => {
-        const floatTween = gsap.to(card, {
-          y: -8,
-          duration: 2.4 + index * 0.25,
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-        });
-        floatingTweens.push(floatTween);
-
-        const onEnter = () => {
-          floatTween.pause();
-          gsap.to(card, {
-            y: -14,
-            scale: 1.025,
-            duration: 0.28,
-            ease: "power2.out",
-          });
-        };
-
-        const onLeave = () => {
-          gsap.to(card, {
-            y: 0,
-            scale: 1,
-            duration: 0.28,
-            ease: "power2.out",
-            onComplete: () => {
-  floatTween.resume();
-},
-          });
-        };
-
-        card.addEventListener("mouseenter", onEnter);
-        card.addEventListener("mouseleave", onLeave);
-        cleanupFns.push(() => {
-          card.removeEventListener("mouseenter", onEnter);
-          card.removeEventListener("mouseleave", onLeave);
-        });
-      });
-
-      if (previewShell && previewOrb) {
-        const moveX = gsap.quickTo(previewShell, "x", { duration: 0.35, ease: "power2.out" });
-        const moveY = gsap.quickTo(previewShell, "y", { duration: 0.35, ease: "power2.out" });
-        const rotX = gsap.quickTo(previewShell, "rotationX", { duration: 0.35, ease: "power2.out" });
-        const rotY = gsap.quickTo(previewShell, "rotationY", { duration: 0.35, ease: "power2.out" });
-        const orbX = gsap.quickTo(previewOrb, "x", { duration: 0.45, ease: "power2.out" });
-        const orbY = gsap.quickTo(previewOrb, "y", { duration: 0.45, ease: "power2.out" });
-
-        const onMove = (event: MouseEvent) => {
-          const rect = previewShell.getBoundingClientRect();
-          const px = (event.clientX - rect.left) / rect.width - 0.5;
-          const py = (event.clientY - rect.top) / rect.height - 0.5;
-
-          moveX(px * 12);
-          moveY(py * 12);
-          rotX(py * -6);
-          rotY(px * 8);
-          orbX(px * 22);
-          orbY(py * 22);
-        };
-
-        const onLeave = () => {
-          moveX(0);
-          moveY(0);
-          rotX(0);
-          rotY(0);
-          orbX(0);
-          orbY(0);
-        };
-
-        previewShell.addEventListener("mousemove", onMove);
-        previewShell.addEventListener("mouseleave", onLeave);
-        cleanupFns.push(() => {
-          previewShell.removeEventListener("mousemove", onMove);
-          previewShell.removeEventListener("mouseleave", onLeave);
-        });
-      }
-
-      return () => {
-        floatingTweens.forEach((tween) => tween.kill());
-        cleanupFns.forEach((cleanup) => cleanup());
-      };
+;
     },
     { scope: heroRef, dependencies: [hasAccessToken] }
   );

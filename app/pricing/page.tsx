@@ -48,95 +48,9 @@ const usageNotes = [
 ];
 
 export default function PricingPage() {
-  const pricingRef = useRef<HTMLDivElement | null>(null);
-
-  useGSAP(
-    () => {
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-
-      tl.fromTo(
-        ".pricing-badge",
-        { y: 16, opacity: 0, filter: "blur(5px)" },
-        { y: 0, opacity: 1, filter: "blur(0px)", duration: 0.45 }
-      )
-        .fromTo(
-          ".pricing-title-word",
-          { yPercent: 120, opacity: 0, rotateX: -70 },
-          { yPercent: 0, opacity: 1, rotateX: 0, duration: 0.8, stagger: 0.06 },
-          "-=0.12"
-        )
-        .fromTo(".pricing-subtext", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55 }, "-=0.35")
-        .fromTo(
-          ".pricing-card",
-          { y: 28, opacity: 0, scale: 0.97, filter: "blur(4px)" },
-          { y: 0, opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.55, stagger: 0.1 },
-          "-=0.2"
-        )
-        .fromTo(
-          ".pricing-usage",
-          { y: 20, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, stagger: 0.07 },
-          "-=0.2"
-        );
-
-      const root = pricingRef.current;
-      if (!root) return;
-
-      const cards = gsap.utils.toArray<HTMLElement>(".pricing-card", root);
-      const floatingTweens: gsap.core.Tween[] = [];
-      const cleanupFns: Array<() => void> = [];
-
-      cards.forEach((card, index) => {
-        const floatTween = gsap.to(card, {
-          y: -8,
-          duration: 2.2 + index * 0.3,
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-        });
-        floatingTweens.push(floatTween);
-
-        const onEnter = () => {
-          floatTween.pause();
-          gsap.to(card, {
-            y: -14,
-            scale: 1.02,
-            duration: 0.25,
-            ease: "power2.out",
-            boxShadow: "0 28px 56px rgba(239, 68, 68, 0.22)",
-          });
-        };
-
-        const onLeave = () => {
-          gsap.to(card, {
-            y: 0,
-            scale: 1,
-            duration: 0.25,
-            ease: "power2.out",
-            boxShadow: "0 18px 42px rgba(249, 115, 22, 0.14)",
-            onComplete: () => { floatTween.resume(); },
-          });
-        };
-
-        card.addEventListener("mouseenter", onEnter);
-        card.addEventListener("mouseleave", onLeave);
-        cleanupFns.push(() => {
-          card.removeEventListener("mouseenter", onEnter);
-          card.removeEventListener("mouseleave", onLeave);
-        });
-      });
-
-      return () => {
-        tl.kill();
-        floatingTweens.forEach((tween) => tween.kill());
-        cleanupFns.forEach((cleanup) => cleanup());
-      };
-    },
-    { scope: pricingRef }
-  );
-
+  
   return (
-    <div ref={pricingRef} className="relative z-10">
+    <div className="relative z-10">
       <section className="mx-auto w-full max-w-6xl px-6 pb-12 pt-36 sm:px-10 sm:pt-40">
         <div className="mx-auto max-w-4xl text-center">
           <p className="pricing-badge mb-5 inline-flex rounded-full border border-orange-200/70 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.13em] text-orange-700 backdrop-blur">
